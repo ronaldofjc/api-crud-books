@@ -10,7 +10,7 @@ func main() {
 	router := gin.Default()
 	handler := buildDependencies()
 	server.Routes(&router.RouterGroup, handler)
-	if err := router.Run(":8090"); err != nil {
+	if err := router.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}
 }
