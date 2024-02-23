@@ -1,9 +1,12 @@
 package book
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/google/uuid"
 	"main/internal/domain"
+	utils "main/internal/utils/json"
+	"os"
 )
 
 type JsonRepository struct {
@@ -34,18 +37,21 @@ func (repo *JsonRepository) GetByIdRepo(id string) (*domain.Book, error) {
 }
 
 func (repo *JsonRepository) CreateBookRepo(book domain.Book) (*domain.Book, error) {
+	books := utils.ReadJsonFileListBooks()
 	id := uuid.New()
 	book.ID = id.String()
-	repo.books[id.String()] = book
+	books = append(books, book)
+	jsonString, _ := json.Marshal(books)
+	err := os.WriteFile("internal/app/book/books.json", jsonString, 0644)
+	if err != nil {
+		return nil, errors.New("error on save new book on repository")
+	}
+
 	return &book, nil
 }
 
 func (repo *JsonRepository) GetBooksRepo() ([]domain.Book, error) {
-	var books = make([]domain.Book, 0)
-	for _, value := range repo.books {
-		books = append(books, value)
-	}
-
+	books := utils.ReadJsonFileListBooks()
 	return books, nil
 }
 

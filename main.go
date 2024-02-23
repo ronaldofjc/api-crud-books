@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"log"
 	"main/config/middleware"
 	"main/internal/app/book"
 	"main/internal/domain"
 	"main/internal/server"
-	"os"
+	utils "main/internal/utils/json"
 )
 
 func main() {
@@ -22,34 +21,17 @@ func main() {
 }
 
 func buildDependencies() server.Handler {
-	books := getBooks(false)
-	repo := book.NewJsonRepository(books)
+	repo := getRepository(false)
 	service := book.NewService(repo)
 	return server.NewHandler(service)
 }
 
-func getBooks(isMemoryRepo bool) map[string]domain.Book {
+func getRepository(isMemoryRepo bool) book.IRepository {
 	if isMemoryRepo {
-		return map[string]domain.Book{}
-	}
-	return readJsonFile()
-}
-
-func readJsonFile() map[string]domain.Book {
-	file, err := os.Open("internal/app/book/books.json")
-	if err != nil {
-		log.Fatal("error on read json file. : ", err.Error())
+		books := map[string]domain.Book{}
+		return book.NewMemoryRepository(books)
 	}
 
-	defer file.Close()
-	books := make(map[string]domain.Book)
-	decoder := json.NewDecoder(file)
-	data := domain.Book{}
-	decoder.Token()
-	for decoder.More() {
-		decoder.Decode(&data)
-		books[data.ID] = data
-	}
-
-	return books
+	books := utils.ReadJsonFileBooks()
+	return book.NewJsonRepository(books)
 }

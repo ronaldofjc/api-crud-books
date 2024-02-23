@@ -11,7 +11,3 @@ type IRepository interface {
 	RemoveByIdRepo(id string) error
 	UpdateByIdRepo(id string, book domain.Book) (*domain.Book, error)
 }
-
-type Repository struct {
-	books map[string]domain.Book
-}
