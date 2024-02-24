@@ -61,7 +61,7 @@ func (handler Handler) GetById(ctx *gin.Context) {
 	}
 
 	if response.IsEmpty() {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "book not found"})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": "book not found"})
 		return
 	}
 

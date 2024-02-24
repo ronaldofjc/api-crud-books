@@ -29,8 +29,11 @@ func (repo *JsonRepository) RemoveByIdRepo(id string) error {
 }
 
 func (repo *JsonRepository) GetByIdRepo(id string) (*domain.Book, error) {
-	if book, ok := repo.books[id]; ok {
-		return &book, nil
+	books := utils.ReadJsonFileListBooks()
+	for _, data := range books {
+		if data.ID == id {
+			return &data, nil
+		}
 	}
 
 	return &domain.Book{}, nil
