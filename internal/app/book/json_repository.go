@@ -20,9 +20,17 @@ func NewJsonRepository(books map[string]domain.Book) *JsonRepository {
 }
 
 func (repo *JsonRepository) RemoveByIdRepo(id string) error {
-	if _, ok := repo.books[id]; ok {
-		delete(repo.books, id)
-		return nil
+	books := utils.ReadJsonFileListBooks()
+	for index, data := range books {
+		if data.ID == id {
+			books = append(books[:index], books[index+1:]...)
+			jsonString, _ := json.Marshal(books)
+			err := os.WriteFile("internal/app/book/books.json", jsonString, 0644)
+			if err != nil {
+				return errors.New("error on remove book on repository")
+			}
+			return nil
+		}
 	}
 
 	return errors.New("book not found")
