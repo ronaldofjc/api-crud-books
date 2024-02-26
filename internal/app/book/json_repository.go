@@ -67,10 +67,19 @@ func (repo *JsonRepository) GetBooksRepo() ([]domain.Book, error) {
 }
 
 func (repo *JsonRepository) UpdateByIdRepo(id string, book domain.Book) (*domain.Book, error) {
-	if _, ok := repo.books[id]; ok {
-		book.ID = id
-		repo.books[id] = book
-		return &book, nil
+	books := utils.ReadJsonFileListBooks()
+	for index, data := range books {
+		if data.ID == id {
+			book.ID = id
+			books = append(books[:index], books[index+1:]...)
+			books = append(books, book)
+			jsonString, _ := json.Marshal(books)
+			err := os.WriteFile("internal/app/book/books.json", jsonString, 0644)
+			if err != nil {
+				return nil, errors.New("error on remove book on repository")
+			}
+			return &book, nil
+		}
 	}
 
 	return nil, errors.New("book not found")
