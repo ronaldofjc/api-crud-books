@@ -7,6 +7,7 @@ import (
 	"main/internal/app/book"
 	"main/internal/domain"
 	"main/internal/server"
+	utils "main/internal/utils/json"
 )
 
 func main() {
@@ -20,8 +21,17 @@ func main() {
 }
 
 func buildDependencies() server.Handler {
-	books := map[string]domain.Book{}
-	repo := book.NewRepository(books)
+	repo := getRepository(false)
 	service := book.NewService(repo)
 	return server.NewHandler(service)
+}
+
+func getRepository(isMemoryRepo bool) book.IRepository {
+	if isMemoryRepo {
+		books := map[string]domain.Book{}
+		return book.NewMemoryRepository(books)
+	}
+
+	books := utils.ReadJsonFileBooks()
+	return book.NewJsonRepository(books)
 }
